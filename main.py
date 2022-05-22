@@ -30,7 +30,9 @@ print(f"integral without importance sampling ={sol1}")
 print()
 print(f"integral with importance sampling ={sol2}")
 
+#integral without importance sampling =0.7762822786981717
 
+#integral with importance sampling =0.7456158287949032
 
 
 #Q2
