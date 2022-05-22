@@ -562,12 +562,7 @@ def boundary(A):
     """
     Sets up the boundary conditions
 
-    Input:
-     - A: Matrix to set boundaries on
-     - x: Array where x[i] = hx*i, x[last_element] = Lx
-
-    Output:
-     - A is initialized in-place (when this method returns)
+    
     """
 
     #Boundaries implemented (condensator with plates at y={0,Lx}, DeltaV = 200):
@@ -594,33 +589,27 @@ def Laplace2D(A, maxsteps, convergence):
     between the previous step and the next step (divided by the number of
     elements in A) is below convergence, or maxsteps is reached.
 
-    Input:
-     - A: matrix to relax
-     - maxsteps, convergence: Convergence criterions
-
-    Output:
-     - A is relaxed when this method returns
     """
 
-    iterations = 0
+    iter = 0
     diff = convergence +1
 
     Nx = A.shape[1]
     Ny = A.shape[0]
     
-    while iterations < maxsteps and diff > convergence:
+    while iter < maxsteps and diff > convergence:
         #Loop over all *INNER* points and relax
-        Atemp = A.copy()
+        Acopy = A.copy()
         diff = 0.0
         
         for y in range(1,Ny-1):
             for x in range(1,Ny-1):
-                A[y,x] = 0.25*(Atemp[y,x+1]+Atemp[y,x-1]+Atemp[y+1,x]+Atemp[y-1,x])
-                diff  += math.fabs(A[y,x] - Atemp[y,x])
+                A[y,x] = 0.25*(Acopy[y,x+1]+Acopy[y,x-1]+Acopy[y+1,x]+Acopy[y-1,x])
+                diff  += math.fabs(A[y,x] - Acopy[y,x])
 
         diff /=(Nx*Ny)
-        iterations += 1
-        #print("Iteration #", iterations, ", diff =", diff)
+        iter += 1
+        
     
     return A
 
@@ -802,7 +791,7 @@ def bisection_method(function ,a,b):
     #plt.show()
     return a   
 
-def RK4_2nd_order(f, x_0, y_0, z_0, x_max, h):
+def RK4_2(f, x_0, y_0, z_0, x_max, h):
     x = x_0
     y = y_0
     z = z_0
@@ -824,21 +813,21 @@ def RK4_2nd_order(f, x_0, y_0, z_0, x_max, h):
     return X, Y
 
 
-def ODE_Shooting(f, a, b, y_at_a, y_at_b):
+def Shootingmethod(f, a, b, y0, y1):
     tolerance = 1e-4
     h = 0.01
-    z_at_a = 2
-    X, Y = RK4_2nd_order(f, a, y_at_a, z_at_a, b, h)
-    if abs(Y[-1]-y_at_b) <= tolerance:
+    z0 = 2
+    X, Y = RK4_2(f, a, y0, z0, b, h)
+    if abs(Y[-1]-y1) <= tolerance:
         return X, Y
     else:
-        z_old = z_at_a
+        z_old = z0
         y_old = Y[-1]
-        z_at_a = float(input(f"Enter some guess slope: "))
-        X, Y = RK4_2nd_order(f, a, y_at_a, z_at_a, b, h)
-        if (y_old > y_at_b and Y[-1] < y_at_b) or (y_old < y_at_b and Y[-1] > y_at_b):
-            z_at_a = z_at_a + (z_old-z_at_a)*(y_at_b-Y[-1])/(y_old-Y[-1])
-            X, Y = RK4_2nd_order(f, a, y_at_a, z_at_a, b, h)
+        z0 = float(input())
+        X, Y = RK4_2(f, a, y0, z0, b, h)
+        if (y_old > y1 and Y[-1] < y1) or (y_old < y1 and Y[-1] > y1):
+            z0 = z0 + (z_old-z0)*(y1-Y[-1])/(y_old-Y[-1])
+            X, Y = RK4_2(f, a, y0, z0, b, h)
         return X, Y
     
 def normalize(Y):
