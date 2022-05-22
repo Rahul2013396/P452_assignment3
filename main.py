@@ -12,7 +12,7 @@ def p(y):
     return a*(np.exp(-y))
 
 def y(x):
-    return -np.log((1-x)/a)
+    return -np.log(1-x/a)
 
 #integral function
 def f(x):
